@@ -69,6 +69,8 @@ def main(commandLine, inputString = ""):
     }
     return data
 
+# add ability to write single files
+
     fields = data[0].keys()
     # filename = "bookScrape_" + productTitle.replace(" ", "_") + ".csv"
 # 
