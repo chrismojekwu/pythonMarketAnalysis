@@ -67,16 +67,13 @@ def main(commandLine, inputString = ""):
         "review_rating": productRating,
         "image_url": "https://books.toscrape.com" + productImagePath
     }
-    return data
-
-# add ability to write single files
-
-    fields = data[0].keys()
-    # filename = "bookScrape_" + productTitle.replace(" ", "_") + ".csv"
-# 
-    # with open(filename, 'w') as csvfile:
-    #     writer = csv.DictWriter(csvfile, fieldnames=fields)
-    #     writer.writeheader()
-    #     writer.writerows(data)
-
-# main()
+    if commandLine == True: 
+        temp = [data]
+        fields = temp[0].keys()
+        filename = "bookScrape_" + productTitle.replace(" ", "_") + ".csv"
+        with open(filename, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(temp)
+    else:
+        return data
