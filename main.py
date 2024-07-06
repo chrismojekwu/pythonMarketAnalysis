@@ -71,4 +71,4 @@ def main():
         writer.writeheader()
         writer.writerows(data)
 
-main()
+# main()
