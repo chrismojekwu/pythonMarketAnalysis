@@ -15,60 +15,60 @@ def clean_tags(input):
             result += input[i]
     return result
 
-
-print("Please input product page url: \n")
-productPageUrl = input()
-while productPageUrl.startswith("https://") == False:
-    print("Please use an https:// url")
+def main():
+    print("Please input product page url: \n")
     productPageUrl = input()
+    while productPageUrl.startswith("https://") == False:
+        print("Please use an https:// url")
+        productPageUrl = input()
 
-print("\nFetching HTML... \n") 
+    print("\nFetching HTML for a single book... \n") 
 
-page = urlopen(productPageUrl)
-html_bytes = page.read()
-htmlString = html_bytes.decode("utf-8")
-# print(htmlString.strip())
+    page = urlopen(productPageUrl)
+    html_bytes = page.read()
+    htmlString = html_bytes.decode("utf-8")
 
-soup = BeautifulSoup(htmlString, "html.parser")
+    soup = BeautifulSoup(htmlString, "html.parser")
+    paragraphs = soup.find_all("p")
 
-# title
-productTitle = clean_tags(str((soup.find("h1")))).strip()
+    # title
+    productTitle = clean_tags(str((soup.find("h1")))).strip()
+    # description
+    productDescription = clean_tags(str(paragraphs[3]))
+    # category
+    productCategory = clean_tags(str(soup.find("ul").find_all("li")[2].find("a")))
+    # review rating
+    productRating = paragraphs[2].get("class")[1]
+    # image url
+    domain = productPageUrl[0:15]
+    productImagePath = str(soup.find("img").get("src")[5:len(soup.find("img").get("src"))])
 
-# description
-# category
-# review rating
-# image url
+    # other data
+    tdTags = soup.find_all("td")
+    tdString = []
+    for x in tdTags:
+        tdString.append(clean_tags(str(x)))
 
-# most other data
-thTags = soup.find_all("th")
-thString = []
-for x in thTags:
-    thString.append(clean_tags(str(x)))
-
-tdTags = soup.find_all("td")
-tdString = []
-for x in tdTags:
-    tdString.append(clean_tags(str(x)))
-
-data = []
-print("\n", productTitle)
-print(thString)
-print(tdString)
-
-# create object and write to file
+    data = [{
+        "product_page_url": productPageUrl, 
+        "universal_product_code (upc)":  tdString[0],
+        "book_title": productTitle,
+        "price_including_tax": tdString[3],
+        "price_excluding_tax": tdString[2],
+        "quantity_available": tdString[5],
+        "product_description": productDescription,
+        "category": productCategory,
+        "review_rating": productRating,
+        "image_url": "https://books.toscrape.com" + productImagePath
+    }]
 
 
+    fields = data[0].keys()
+    filename = "bookScrape.csv"
 
+    with open(filename, 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(data)
 
-# fields = ["name", "age", "location"]
-# filename = "text.csv"
-
-# dict1 = [{"name": "Test 1", "age": "32" , "location": "home"},
-#          {"name": "Test 2", "age": "24" , "location": "out"},
-#          {"name": "Test 3", "age": "54" , "location": "friends couch"},]
-# 
-# with open(filename, 'w') as csvfile:
-#     # creating a csv dict writer object
-#     writer = csv.DictWriter(csvfile, fieldnames=fields)
-#     writer.writeheader()
-#     writer.writerows(dict1)
+main()
