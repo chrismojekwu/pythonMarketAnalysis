@@ -15,18 +15,24 @@ def clean_tags(input):
             result += input[i]
     return result
 
-def main():
-    print("Please input product page url: \n")
-    productPageUrl = input()
-    while productPageUrl.startswith("https://") == False:
-        print("Please use an https:// url")
-        productPageUrl = input()
-
-    print("\nFetching HTML for a single book... \n") 
-
-    page = urlopen(productPageUrl)
+def get_html_string(input):
+    page = urlopen(input)
     html_bytes = page.read()
-    htmlString = html_bytes.decode("utf-8")
+    return html_bytes.decode("utf-8")
+
+def main(commandLine, inputString = ""):
+    if commandLine == False:
+        productPageUrl = inputString
+    else:
+        print("Please input product page url: \n")
+        productPageUrl = input()
+        while productPageUrl.startswith("https://") == False:
+            print("Please use an https:// url")
+            productPageUrl = input()
+
+        print("\nFetching HTML for a single book... \n") 
+
+    htmlString = get_html_string(productPageUrl)
 
     soup = BeautifulSoup(htmlString, "html.parser")
     paragraphs = soup.find_all("p")
@@ -49,7 +55,7 @@ def main():
     for x in tdTags:
         tdString.append(clean_tags(str(x)))
 
-    data = [{
+    data = {
         "product_page_url": productPageUrl, 
         "universal_product_code (upc)":  tdString[0],
         "book_title": productTitle,
@@ -60,15 +66,15 @@ def main():
         "category": productCategory,
         "review_rating": productRating,
         "image_url": "https://books.toscrape.com" + productImagePath
-    }]
-
+    }
+    return data
 
     fields = data[0].keys()
-    filename = "bookScrape.csv"
-
-    with open(filename, 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fields)
-        writer.writeheader()
-        writer.writerows(data)
+    # filename = "bookScrape_" + productTitle.replace(" ", "_") + ".csv"
+# 
+    # with open(filename, 'w') as csvfile:
+    #     writer = csv.DictWriter(csvfile, fieldnames=fields)
+    #     writer.writeheader()
+    #     writer.writerows(data)
 
 # main()
