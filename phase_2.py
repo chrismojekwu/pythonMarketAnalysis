@@ -1,8 +1,8 @@
 import csv
 import math
 import os
+import urllib.request 
 from bs4 import BeautifulSoup
-from datetime import date
 from main import main as single_book, clean_tags, get_html_string
 
 def main():
@@ -54,9 +54,14 @@ def main():
             os.mkdir("/Users/chris/Dev/pythonMarketAnalysis/data")
         if os.path.exists("/Users/chris/Dev/pythonMarketAnalysis/data/img") == False:
             os.mkdir("/Users/chris/Dev/pythonMarketAnalysis/data/img")
+
+        print("Downloading all book covers for category: ", category_title)
+
+        for c in cat_data:
+            urllib.request.urlretrieve(c["image_url"], "/Users/chris/Dev/pythonMarketAnalysis/data/img/" + category_title + "_" + c["book_title"].replace(" ", "_") + "_img.png")
         
         fields = cat_data[0].keys()
-        filename = "categoryScrape_" + category_title + ".csv"
+        filename = "categoryScrape_" + category_title.replace(" ", "_") + ".csv"
         with open("/Users/chris/Dev/pythonMarketAnalysis/data/" + filename, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
