@@ -1,7 +1,7 @@
 # Books To Scrape Data
 
-## After running this script all data from the books of each category on Books to Scrape will be saved to seperate .csv files in the data folder.
-## All cober art will be saved to the data/img folder.
+#### After running this script all data from the books of each category on Books to Scrape will be saved to seperate .csv files in the data folder.
+#### All cover art will be saved to the data/img folder.
 
 ## Instructions
 
