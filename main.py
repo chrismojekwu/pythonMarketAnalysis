@@ -1,80 +1,70 @@
 import csv
+import math
+import os
+import urllib.request 
 from bs4 import BeautifulSoup
-from urllib.request import urlopen
+from funcs import main as single_book, clean_tags, get_html_string
 
-def clean_tags(input):
-    result = ""
-    in_tag = False
-    for i in range (0, len(input)):
-        if i > 0 and input[i] == '<':
-            break
-        elif input[i] == '>':
-            in_tag = True
-            continue
-        if in_tag:
-            result += input[i]
-    return result
+def main():
+    html_string = get_html_string("https://books.toscrape.com/catalogue/category/books_1/index.html")
+    soup = BeautifulSoup(html_string, "html.parser")
+    categories = soup.find("div", {"class": "side_categories"}).find_all("a")
+    category_strings = []
+    for x in categories:
+        category_strings.append(clean_tags(str(x).strip()).strip())
 
-def get_html_string(input):
-    page = urlopen(input)
-    html_bytes = page.read()
-    return html_bytes.decode("utf-8")
+    category_strings = category_strings[1:len(category_strings)]
+    catInt = 2
+    category_title = ""
 
-def main(commandLine, inputString = ""):
-    if commandLine == False:
-        productPageUrl = inputString
-    else:
-        print("Please input product page url: \n")
-        productPageUrl = input()
-        while productPageUrl.startswith("https://") == False:
-            print("Please use an https:// url")
-            productPageUrl = input()
+    for y in category_strings:
+        url = "https://books.toscrape.com/catalogue/category/books/" + y.lower().replace(" ", "-") + "_" + str(catInt)+ "/index.html"
+        print(url)
+        html_string = get_html_string(url)
+        soup = BeautifulSoup(html_string, "html.parser")
+        result_num = clean_tags(str(soup.find_all("strong")[1]))
+        product_page_tags = soup.find_all("div", {"class": "image_container"})
+        page_paths = []
+        category_title = clean_tags(str(soup.find("h1")))
 
-        print("\nFetching HTML for a single book... \n") 
+        for x in product_page_tags:
+            curr = str(x.find("a").get("href"))
+            page_paths.append(curr[8:len(curr)])
+        if int(result_num) > 20:
+            number_of_pages = math.ceil(int(result_num) / 20)
+            current_page = 2
+            while current_page <= number_of_pages:
+                url2 = "https://books.toscrape.com/catalogue/category/books/" + y.lower().replace(" ", "-") + "_" + str(catInt) + "/page-" + str(current_page) + ".html"
+                html_string2 = get_html_string(url2)
+                soup2 = BeautifulSoup(html_string2, "html.parser")
+                product_page_tags2 = soup2.find_all("div", {"class": "image_container"})
+                for z in product_page_tags2:
+                    curr = str(z.find("a").get("href"))
+                    page_paths.append(curr[8:len(curr)])
+                current_page+=1
+        
+        cat_data = []; 
+        for b in page_paths:
+            print("Getting data for: ", "https://books.toscrape.com/catalogue" + b)
+            cat_data.append(single_book(False, "https://books.toscrape.com/catalogue" + b))
 
-    htmlString = get_html_string(productPageUrl)
+        print("Writing .csv file for category: ", category_title)
 
-    soup = BeautifulSoup(htmlString, "html.parser")
-    paragraphs = soup.find_all("p")
+        if os.path.exists("/Users/chris/Dev/pythonMarketAnalysis/data") == False:
+            os.mkdir("/Users/chris/Dev/pythonMarketAnalysis/data")
+        if os.path.exists("/Users/chris/Dev/pythonMarketAnalysis/data/img") == False:
+            os.mkdir("/Users/chris/Dev/pythonMarketAnalysis/data/img")
 
-    # title
-    productTitle = clean_tags(str((soup.find("h1")))).strip()
-    # description
-    productDescription = clean_tags(str(paragraphs[3]))
-    # category
-    productCategory = clean_tags(str(soup.find("ul").find_all("li")[2].find("a")))
-    # review rating
-    productRating = paragraphs[2].get("class")[1]
-    # image url
-    domain = productPageUrl[0:15]
-    productImagePath = str(soup.find("img").get("src")[5:len(soup.find("img").get("src"))])
+        print("Downloading all book covers for category: ", category_title)
 
-    # other data
-    tdTags = soup.find_all("td")
-    tdString = []
-    for x in tdTags:
-        tdString.append(clean_tags(str(x)))
-
-    data = {
-        "product_page_url": productPageUrl, 
-        "universal_product_code (upc)":  tdString[0],
-        "book_title": productTitle,
-        "price_including_tax": tdString[3],
-        "price_excluding_tax": tdString[2],
-        "quantity_available": tdString[5],
-        "product_description": productDescription,
-        "category": productCategory,
-        "review_rating": productRating,
-        "image_url": "https://books.toscrape.com" + productImagePath
-    }
-    
-    if commandLine == True: 
-        temp = [data]
-        fields = temp[0].keys()
-        filename = "bookScrape_" + productTitle.replace(" ", "_") + ".csv"
-        with open(filename, 'w') as csvfile:
+        for c in cat_data:
+            urllib.request.urlretrieve(c["image_url"], "/Users/chris/Dev/pythonMarketAnalysis/data/img/" + category_title + "_" + c["book_title"].replace(" ", "_") + "_img.png")
+        
+        fields = cat_data[0].keys()
+        filename = "categoryScrape_" + category_title.replace(" ", "_") + ".csv"
+        with open("/Users/chris/Dev/pythonMarketAnalysis/data/" + filename, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
-            writer.writerows(temp)
-    else:
-        return data
+            writer.writerows(cat_data)    
+        catInt+=1
+main()
