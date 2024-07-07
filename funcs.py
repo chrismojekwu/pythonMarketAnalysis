@@ -20,7 +20,7 @@ def get_html_string(input):
     html_bytes = page.read()
     return html_bytes.decode("utf-8")
 
-def main(commandLine, inputString = ""):
+def single_book(commandLine, inputString = ""):
     if commandLine == False:
         productPageUrl = inputString
     else:

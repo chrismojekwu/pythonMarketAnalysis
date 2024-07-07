@@ -3,7 +3,7 @@ import math
 import os
 import urllib.request 
 from bs4 import BeautifulSoup
-from funcs import main as single_book, clean_tags, get_html_string
+from funcs import single_book, clean_tags, get_html_string
 
 def main():
     html_string = get_html_string("https://books.toscrape.com/catalogue/category/books_1/index.html")
