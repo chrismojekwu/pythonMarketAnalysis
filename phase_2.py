@@ -1,5 +1,6 @@
 import csv
 import math
+import os
 from bs4 import BeautifulSoup
 from datetime import date
 from main import main as single_book, clean_tags, get_html_string
@@ -14,8 +15,7 @@ def main():
 
     category_strings = category_strings[1:len(category_strings)]
     catInt = 2
-    all_page_paths = []
-    all_book_data = []
+    category_title = ""
 
     for y in category_strings:
         url = "https://books.toscrape.com/catalogue/category/books/" + y.lower().replace(" ", "-") + "_" + str(catInt)+ "/index.html"
@@ -25,6 +25,8 @@ def main():
         result_num = clean_tags(str(soup.find_all("strong")[1]))
         product_page_tags = soup.find_all("div", {"class": "image_container"})
         page_paths = []
+        category_title = clean_tags(str(soup.find("h1")))
+
         for x in product_page_tags:
             curr = str(x.find("a").get("href"))
             page_paths.append(curr[8:len(curr)])
@@ -40,22 +42,25 @@ def main():
                     curr = str(z.find("a").get("href"))
                     page_paths.append(curr[8:len(curr)])
                 current_page+=1
-        all_page_paths += page_paths
+        
+        cat_data = []; 
+        for b in page_paths:
+            print("Getting data for: ", "https://books.toscrape.com/catalogue" + b)
+            cat_data.append(single_book(False, "https://books.toscrape.com/catalogue" + b))
+
+        print("Writing .csv file for category: ", category_title)
+
+        if os.path.exists("/Users/chris/Dev/pythonMarketAnalysis/data") == False:
+            os.mkdir("/Users/chris/Dev/pythonMarketAnalysis/data")
+        if os.path.exists("/Users/chris/Dev/pythonMarketAnalysis/data/img") == False:
+            os.mkdir("/Users/chris/Dev/pythonMarketAnalysis/data/img")
+        
+        fields = cat_data[0].keys()
+        filename = "categoryScrape_" + category_title + ".csv"
+        with open("/Users/chris/Dev/pythonMarketAnalysis/data/" + filename, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(cat_data)    
         catInt+=1
-    helpfulInt = 1
-    for b in all_page_paths:
-        print(helpfulInt, "  Getting data for: ", "https://books.toscrape.com/catalogue" + b)
-        all_book_data.append(single_book(False, "https://books.toscrape.com/catalogue" + b))
-        helpfulInt+=1
-
-    print("Writing book data to .csv", len(all_book_data))
-
-    fields = all_book_data[0].keys()
-    filename = "categoryScrape.csv"
-
-    with open(filename, 'w') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fields)
-        writer.writeheader()
-        writer.writerows(all_book_data)
-
+    
 main()

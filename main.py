@@ -67,6 +67,7 @@ def main(commandLine, inputString = ""):
         "review_rating": productRating,
         "image_url": "https://books.toscrape.com" + productImagePath
     }
+    
     if commandLine == True: 
         temp = [data]
         fields = temp[0].keys()
