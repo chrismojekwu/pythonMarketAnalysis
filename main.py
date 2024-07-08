@@ -2,6 +2,8 @@ import csv
 import math
 import os
 import urllib.request 
+import pathlib
+
 from bs4 import BeautifulSoup
 from funcs import single_book, clean_tags, get_html_string
 
@@ -49,11 +51,12 @@ def main():
             cat_data.append(single_book(False, "https://books.toscrape.com/catalogue" + b))
 
         print("Writing .csv file for category: ", category_title)
-
-        if os.path.exists("/Users/chris/Dev/pythonMarketAnalysis/data") == False:
-            os.mkdir("/Users/chris/Dev/pythonMarketAnalysis/data")
-        if os.path.exists("/Users/chris/Dev/pythonMarketAnalysis/data/img") == False:
-            os.mkdir("/Users/chris/Dev/pythonMarketAnalysis/data/img")
+        path = str(pathlib.Path().resolve())
+        
+        if os.path.exists(path + "/data") == False:
+            os.mkdir(path + "/data")
+        if os.path.exists(path + "/data/img") == False:
+            os.mkdir(path + "/data/img")
 
         print("Downloading all book covers for category: ", category_title)
 
