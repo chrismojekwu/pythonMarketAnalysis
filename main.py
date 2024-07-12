@@ -61,11 +61,11 @@ def main():
         print("Downloading all book covers for category: ", category_title)
 
         for c in cat_data:
-            urllib.request.urlretrieve(c["image_url"], "/Users/chris/Dev/pythonMarketAnalysis/data/img/" + category_title + "_" + c["book_title"].replace(" ", "_") + "_img.png")
+            urllib.request.urlretrieve(c["image_url"], path + "/data/img/" + category_title + "_" + c["book_title"].replace(" ", "_") + "_img.png")
         
         fields = cat_data[0].keys()
         filename = "categoryScrape_" + category_title.replace(" ", "_") + ".csv"
-        with open("/Users/chris/Dev/pythonMarketAnalysis/data/" + filename, 'w') as csvfile:
+        with open(path + "/data/" + filename, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
             writer.writerows(cat_data)    
