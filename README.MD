@@ -5,7 +5,7 @@
 
 ## Instructions
 
-- Ensure you have python and pip installeed on your system
+- Ensure you have python and pip installed on your system
 
 - Open Terminal (Mac) or Powershell (Windows)
 
