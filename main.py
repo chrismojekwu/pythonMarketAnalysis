@@ -9,6 +9,8 @@ from funcs import single_book, clean_tags, get_html_string
 
 def main():
     html_string = get_html_string("https://books.toscrape.com/catalogue/category/books_1/index.html")
+    cat_path = "https://books.toscrape.com/catalogue/category/books/"
+    book_path = "https://books.toscrape.com/catalogue"
     soup = BeautifulSoup(html_string, "html.parser")
     categories = soup.find("div", {"class": "side_categories"}).find_all("a")
     category_strings = []
@@ -20,7 +22,7 @@ def main():
     category_title = ""
 
     for y in category_strings:
-        url = "https://books.toscrape.com/catalogue/category/books/" + y.lower().replace(" ", "-") + "_" + str(catInt)+ "/index.html"
+        url = cat_path + y.lower().replace(" ", "-") + "_" + str(catInt)+ "/index.html"
         print(url)
         html_string = get_html_string(url)
         soup = BeautifulSoup(html_string, "html.parser")
@@ -36,7 +38,7 @@ def main():
             number_of_pages = math.ceil(int(result_num) / 20)
             current_page = 2
             while current_page <= number_of_pages:
-                url2 = "https://books.toscrape.com/catalogue/category/books/" + y.lower().replace(" ", "-") + "_" + str(catInt) + "/page-" + str(current_page) + ".html"
+                url2 = cat_path + y.lower().replace(" ", "-") + "_" + str(catInt) + "/page-" + str(current_page) + ".html"
                 html_string2 = get_html_string(url2)
                 soup2 = BeautifulSoup(html_string2, "html.parser")
                 product_page_tags2 = soup2.find_all("div", {"class": "image_container"})
@@ -47,8 +49,8 @@ def main():
         
         cat_data = []; 
         for b in page_paths:
-            print("Getting data for: ", "https://books.toscrape.com/catalogue" + b)
-            cat_data.append(single_book(False, "https://books.toscrape.com/catalogue" + b))
+            print("Getting data for: ", book_path + b)
+            cat_data.append(single_book(False, book_path + b))
 
         print("Writing .csv file for category: ", category_title)
         path = str(pathlib.Path().resolve())
