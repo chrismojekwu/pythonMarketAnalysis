@@ -47,7 +47,7 @@ def main():
                     page_paths.append(curr[8:len(curr)])
                 current_page+=1
         
-        cat_data = []; 
+        cat_data = []
         for b in page_paths:
             print("Getting data for: ", book_path + b)
             cat_data.append(single_book(False, book_path + b))
