@@ -3,6 +3,7 @@ import math
 import os
 import urllib.request 
 import pathlib
+import re
 
 from bs4 import BeautifulSoup
 from funcs import single_book, clean_tags, get_html_string
@@ -63,7 +64,8 @@ def main():
         print("Downloading all book covers for category: ", category_title)
 
         for c in cat_data:
-            urllib.request.urlretrieve(c["image_url"], path + "/data/img/" + category_title + "_" + c["book_title"].replace(" ", "_") + "_img.png")
+            title = re.sub("[^0-9a-zA-Z]+", "-", c["book_title"]).replace(" ", "-")
+            urllib.request.urlretrieve(c["image_url"], path + "/data/img/" + title[0:19] + "_img.png")        
         
         fields = cat_data[0].keys()
         filename = "categoryScrape_" + category_title.replace(" ", "_") + ".csv"
